@@ -53,14 +53,13 @@ public abstract class MustacheHandler<R extends Request> implements Handler<R> {
   }
 
   public File rootAnnotation() {
-    final Page pageAnnotation = this.getClass().getAnnotation(Page.class);
+    final Page pageAnnotation = annotation(this, Page.class);
     if (pageAnnotation == null) throw new RuntimeException("missing page annotation: " + this.getClass());
     return new File(pageAnnotation.root());
   }
 
   public String pathAnnotation() {
-    // GUICE IS SCREWING THIS THING UP -- IT DOES NOT PRESERVE ANNOTATIONS!
-    final Page pageAnnotation = this.getClass().getAnnotation(Page.class);
+    final Page pageAnnotation = annotation(this, Page.class);
     if (pageAnnotation == null) throw new RuntimeException("missing page annotation: " + this.getClass());
     return pageAnnotation.template();
   }
@@ -139,5 +138,37 @@ public abstract class MustacheHandler<R extends Request> implements Handler<R> {
       }
     }
     return clazz;
+  }
+
+  /**
+   * returns the specified annotation for the given object, regardless of whether the
+   * class has been enhaced by guice
+   *
+   * @param obj
+   * @param annotationCls
+   * @param <T>
+   * @return
+   */
+  private static <T extends Annotation> T annotation(Object obj, Class<T> annotationCls) {
+    T annotation = obj.getClass().getAnnotation(annotationCls);
+    if (annotation == null) {
+      annotation = (T) loadUnenhancedClass(obj).getAnnotation(annotationCls);
+    }
+    return annotation;
+  }
+
+  private static Class loadUnenhancedClass(Object obj) {
+    final String mangledName = obj.getClass().getName();
+    final int crapidx = mangledName.indexOf("$$EnhancerByGuice");
+    if (crapidx >= 0) {
+      final String originalName = mangledName.substring(0, crapidx);
+      try {
+        return obj.getClass().getClassLoader().loadClass(originalName);
+      } catch (ClassNotFoundException e) {
+        throw new RuntimeException("could not find original class " + originalName + " for mangled class " + mangledName);
+      }
+    } else {
+      return null;
+    }
   }
 }

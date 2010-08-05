@@ -56,7 +56,7 @@ public class NewJorstacheServer {
     return config;
   }
 
-  @Page(url="/", root="webapp/src", template = "index.html")
+  @Page(url="/", root="/tmp", template = "index.html")
   static class HomeHandler extends PageHandler {
     public Object page(final Request request) throws NotFoundException, RedirectException {
       return new Object() {
@@ -65,7 +65,7 @@ public class NewJorstacheServer {
     }
   }
 
-  @Page(url="/person/([A-Za-z0-9]+)", params={"name"}, root="webapp/src", template = "index.html")
+  @Page(url="/person/([A-Za-z0-9]+)", params={"name"}, root="/tmp", template = "index.html")
   static class PersonHandler extends PageHandler {
     public Object page(final Request request) throws NotFoundException, RedirectException {
       return new Object() {

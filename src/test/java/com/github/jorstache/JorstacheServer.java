@@ -71,7 +71,7 @@ public class JorstacheServer {
   }
 
   @Singleton
-  static class HomeHandler extends MustacheHandler {
+  static class HomeHandler extends MustacheHandler<Request> {
     public HomeHandler() throws MustacheException {
       super(new File("webapp/src"), "index.html");
     }
@@ -85,7 +85,7 @@ public class JorstacheServer {
   }
 
   @Singleton
-  static class PersonHandler extends MustacheHandler {
+  static class PersonHandler extends MustacheHandler<Request> {
     public PersonHandler() throws MustacheException {
       super(new File("webapp/src"), "person.html");
     }
@@ -99,21 +99,21 @@ public class JorstacheServer {
   }
 
   @Singleton
-  static class FredHandler extends CodebehindHandler {
+  static class FredHandler extends CodebehindHandler<Request> {
     public FredHandler() throws MustacheException {
       super(new File("webapp/src"), "fred.html", "com/sampullara/fred/Fred.java", "com.sampullara.fred.Fred");
     }
   }
 
   @Singleton
-  static class CodebehindFredHandler extends CodebehindHandler {
+  static class CodebehindFredHandler extends CodebehindHandler<Request> {
     public CodebehindFredHandler() throws MustacheException {
       super(new File("webapp/src"), "fred.html", CodeBehindFred.class);
     }
   }
 
   @Singleton
-  static class TimeoutHandler extends CodebehindHandler {
+  static class TimeoutHandler extends CodebehindHandler<Request> {
     public TimeoutHandler() throws MustacheException {
       super(new File("webapp/src"), "timedout.html", "com.sampullara.fred.TimedOut");
     }
@@ -124,5 +124,4 @@ public class JorstacheServer {
       return new JorstacheUser(id);
     }
   }
-
 }

@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.annotation.Annotation;
 
 /**
  * Handle a mustache template request.
@@ -23,7 +24,7 @@ import java.io.PrintWriter;
  * Date: May 16, 2010
  * Time: 5:01:24 PM
  */
-public abstract class MustacheHandler implements Handler<Request> {
+public abstract class MustacheHandler<R extends Request> implements Handler<R> {
 
   private MustacheCompiler mc;
   private Mustache mustache;
@@ -36,6 +37,33 @@ public abstract class MustacheHandler implements Handler<Request> {
   private long lastcheck = System.currentTimeMillis();
   protected Class clazz;
   private long codetimestamp;
+
+
+  public MustacheHandler() {
+    this.path = pathAnnotation();
+    final File root = rootAnnotation();
+    template = new File(root, path);
+    timestamp = template.lastModified();
+    mc = new MustacheCompiler(root);
+    try {
+      mustache = mc.parseFile(this.path);
+    } catch (MustacheException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public File rootAnnotation() {
+    final Page pageAnnotation = this.getClass().getAnnotation(Page.class);
+    if (pageAnnotation == null) throw new RuntimeException("missing page annotation: " + this.getClass());
+    return new File(pageAnnotation.root());
+  }
+
+  public String pathAnnotation() {
+    // GUICE IS SCREWING THIS THING UP -- IT DOES NOT PRESERVE ANNOTATIONS!
+    final Page pageAnnotation = this.getClass().getAnnotation(Page.class);
+    if (pageAnnotation == null) throw new RuntimeException("missing page annotation: " + this.getClass());
+    return pageAnnotation.template();
+  }
 
   public MustacheHandler(File root, String path) throws MustacheException {
     this.path = path;

@@ -18,7 +18,7 @@ import java.io.File;
 * Date: May 17, 2010
 * Time: 4:55:24 PM
 */
-public class CodebehindHandler extends MustacheHandler {
+public class CodebehindHandler<R extends Request> extends MustacheHandler<R> {
   @Inject
   private Injector injector;
 
